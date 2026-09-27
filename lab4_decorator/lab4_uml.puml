@@ -1,0 +1,55 @@
+@startuml lab4_decorator_uml
+title Lab 4 - Decorator Pattern (HTTP Middleware Pipeline)
+
+interface HttpClient <<interface>> {
+  +get(url) : string
+}
+
+class BaseHttpClient {
+  +get(url) : string
+}
+
+abstract class HttpDecorator {
+  #wrapped : HttpClient
+  +get(url) : string
+}
+
+class LoggingDecorator {
+  +get(url) : string
+}
+class CachingDecorator {
+  -cache : array
+  +get(url) : string
+}
+class RetryDecorator {
+  +get(url) : string
+}
+class TokenCounterDecorator {
+  +get(url) : string
+}
+
+BaseHttpClient ..|> HttpClient
+HttpDecorator ..|> HttpClient
+HttpDecorator o-- HttpClient : wrapped\n(composition, has-a)
+
+HttpDecorator <|-- LoggingDecorator
+HttpDecorator <|-- CachingDecorator
+HttpDecorator <|-- RetryDecorator
+HttpDecorator <|-- TokenCounterDecorator
+
+note right of HttpDecorator
+  Wrapping chain built at runtime:
+  new Retry(
+    new Caching(
+      new Logging(
+        new BaseHttpClient()
+      )
+    )
+  )
+  Order matters: Logging closest to
+  Base logs the raw fetch; Caching
+  outside it can short-circuit before
+  Logging even runs.
+end note
+
+@enduml

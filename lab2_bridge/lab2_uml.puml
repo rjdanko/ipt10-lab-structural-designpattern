@@ -1,0 +1,64 @@
+@startuml lab2_bridge_uml
+title Lab 2 - Bridge Pattern (TimesFormatter x DataSource x Compressor)
+
+abstract class TimesFormatter {
+  #source : DataSource
+  #compressor : Compressor
+  +setCompressor(compressor) : void
+  +generate(title) : string
+  {abstract} #toText(records) : string
+}
+
+class AttendanceTimesFormatter {
+  #toText(records) : string
+}
+class TimesheetJsonFormatter {
+  #toText(records) : string
+}
+
+interface DataSource <<interface>> {
+  +fetch() : array
+}
+class ApiDataSource {
+  +fetch() : array
+}
+class FileDataSource {
+  +fetch() : array
+}
+
+interface Compressor <<interface>> {
+  +compress(content) : string
+  +isCompressed() : bool
+}
+class GzipCompressor {
+  +compress(content) : string
+  +isCompressed() : bool
+}
+class NoneCompressor {
+  +compress(content) : string
+  +isCompressed() : bool
+}
+
+TimesFormatter <|-- AttendanceTimesFormatter
+TimesFormatter <|-- TimesheetJsonFormatter
+
+ApiDataSource ..|> DataSource
+FileDataSource ..|> DataSource
+
+GzipCompressor ..|> Compressor
+NoneCompressor ..|> Compressor
+
+TimesFormatter o-- DataSource : bridge aggregation\n(has-a, injected)
+TimesFormatter o-- Compressor : bridge aggregation\n(has-a, swappable via setCompressor)
+
+note right of TimesFormatter
+  Bridge: abstraction hierarchy
+  (Formatter subclasses) varies
+  independently from the two
+  implementor hierarchies
+  (DataSource, Compressor).
+  No subclass explosion needed
+  for source x compressor combos.
+end note
+
+@enduml

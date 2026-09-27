@@ -1,0 +1,4 @@
+[
+    {"userId": 1, "id": 1, "title": "Bridge", "body": "Decouple abstraction from implementation."},
+    {"userId": 1, "id": 2, "title": "Compressor", "body": "Compress the output independently."}
+]

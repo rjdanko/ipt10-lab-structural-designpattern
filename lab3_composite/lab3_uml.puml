@@ -1,0 +1,79 @@
+@startuml lab3_composite_uml
+title Lab 3 - Composite Pattern (Forum Thread/Post + RAG Document/Section/Chunk)
+
+package "Forum variant" {
+  interface ForumComponent <<interface>> {
+    +display(depth) : void
+  }
+
+  class Post {
+    -author : string
+    -message : string
+    +display(depth) : void
+  }
+
+  class Thread {
+    -title : string
+    -children : ForumComponent[]
+    +add(c : ForumComponent) : void
+    +display(depth) : void
+    +{static} fromApi(postId) : self
+  }
+
+  Post ..|> ForumComponent
+  Thread ..|> ForumComponent
+  Thread o-- "1..*" ForumComponent : children\n(composition)
+}
+
+package "RAG variant" {
+  interface TextComponent <<interface>> {
+    +getText() : string
+    +embed() : void
+  }
+
+  class Chunk {
+    -text : string
+    +getText() : string
+    +embed() : void
+  }
+
+  class Section {
+    -title : string
+    -children : TextComponent[]
+    +add(c : TextComponent) : void
+    +getText() : string
+    +embed() : void
+  }
+
+  class Document {
+    -title : string
+    -children : TextComponent[]
+    +add(c : TextComponent) : void
+    +getText() : string
+    +embed() : void
+  }
+
+  Chunk ..|> TextComponent
+  Section ..|> TextComponent
+  Document ..|> TextComponent
+  Section o-- "1..*" TextComponent : children\n(composition)
+  Document o-- "1..*" TextComponent : children\n(composition)
+}
+
+note bottom of Thread
+  Leaf (Post) and Composite (Thread)
+  both implement ForumComponent, so
+  the client calls display() uniformly
+  without checking instanceof.
+end note
+
+note bottom of Document
+  Same shape as the forum: Chunk is
+  the leaf, Section/Document are
+  composites. getText() recursively
+  concatenates children; embed()
+  recurses the same way down to
+  each Chunk.
+end note
+
+@enduml

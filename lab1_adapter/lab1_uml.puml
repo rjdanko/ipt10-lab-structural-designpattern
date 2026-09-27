@@ -1,0 +1,62 @@
+@startuml lab1_adapter_uml
+title Lab 1 - Adapter Pattern (File Exporter)
+
+interface FileWriter <<interface>> {
+  +write(filename, rows) : bool
+}
+
+class ReportExporter {
+  -writer : FileWriter
+  +export(filename, rows) : void
+}
+
+class CsvFileAdapter {
+  -csv : CsvLibrary
+  +write(filename, rows) : bool
+}
+class JsonFileAdapter {
+  -json : JsonLibrary
+  +write(filename, rows) : bool
+}
+class TextFileAdapter {
+  -text : TextLibrary
+  +write(filename, rows) : bool
+}
+
+class CsvLibrary {
+  +writeCsv(path, rows) : bool
+}
+class JsonLibrary {
+  +saveJson(path, payload) : bool
+}
+class TextLibrary {
+  +appendLine(path, line) : bool
+}
+
+ReportExporter *-- FileWriter : composition\n(depends only on Target)
+
+CsvFileAdapter ..|> FileWriter : implements
+JsonFileAdapter ..|> FileWriter : implements
+TextFileAdapter ..|> FileWriter : implements
+
+CsvFileAdapter *-- CsvLibrary : composition
+JsonFileAdapter *-- JsonLibrary : composition
+TextFileAdapter *-- TextLibrary : composition
+
+note right of CsvFileAdapter
+  write() translates Target call
+  into writeCsv() on the Adaptee
+end note
+
+note right of JsonFileAdapter
+  write() translates Target call
+  into saveJson() on the Adaptee
+end note
+
+note right of TextFileAdapter
+  write() translates Target call
+  into appendLine() calls (per row)
+  on the Adaptee
+end note
+
+@enduml
